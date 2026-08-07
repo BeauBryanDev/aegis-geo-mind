@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+node_modules
+
+# Project venv (see PETROLOGIX_DOCS.md in the well_logs_dataset repo)
+geologs/
+
+# Vendored model wheel is committed on purpose (Docker build
+# installs it offline); uncomment to exclude it.
+# wheels/
+.env
