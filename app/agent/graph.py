@@ -330,14 +330,27 @@ def guard_node(state: GeoMindState) -> GeoMindState:
         return state
 
     claimed = find_blind_spot_claims(state.answer)
+    
+    _BLIND_SPOT_NOTE_ONE = (
+        "Correction: this model cannot detect {classes}. Its absence from the result "
+        "is a limitation of the model, not evidence that it is absent from the well."
+    )
+    _BLIND_SPOT_NOTE_MANY = (
+        "Correction: this model cannot detect {classes}. Their absence from the "
+        "result is a limitation of the model, not evidence that they are absent "
+        "from the well."
+    )
     if claimed:
+        
         template = _BLIND_SPOT_NOTE_ONE if len(claimed) == 1 else _BLIND_SPOT_NOTE_MANY
         notes.append(template.format(classes=", ".join(claimed)))
         state.note(f"guard: corrected absence claim ({', '.join(claimed)})")
         logger.warning("model claimed %s absent; correction appended", claimed)
 
     if not is_formula_request(state.question):
+        
         invented = find_unsupported_quantities(state.answer)
+        
         if invented:
             notes.append(_FABRICATION_NOTE.format(quantities=", ".join(invented)))
             state.note(f"guard: flagged fabricated quantities ({', '.join(invented)})")
@@ -401,6 +414,7 @@ async def run(
     state = guard_node(state)
 
     logger.info("graph: %s", " -> ".join(state.trace))
+    
     return GeoMindResult(
         answer=state.answer or "",
         prediction=state.prediction,
