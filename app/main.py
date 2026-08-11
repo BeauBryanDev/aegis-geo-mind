@@ -11,6 +11,8 @@ from app.core.logging import configure_logging
 from app.llm.anthropic_client import LLMUnavailableError, get_llm_client
 from app.petrologix.loader import load_model
 from app.routers import chat, health, prediction, well_logs
+from app.routers import petroleum_price
+
 
 logger = logging.getLogger(__name__)
 """  
@@ -34,10 +36,13 @@ async def lifespan(app: FastAPI):
             try:
                 if await get_llm_client().is_awake():
                     logger.info("Anthropic LLM client ready")
+                    
             except LLMUnavailableError as e:
                 logger.warning("Anthropic LLM client unavailable: %s", e)
+                
             except Exception as e:  # noqa: BLE001 - never block startup on this
                 logger.warning("could not initialize Anthropic LLM client: %s", e)
+                
         asyncio.create_task(_warm())
 
     logger.info("%s ready", settings.app_name)
@@ -63,3 +68,4 @@ app.include_router(health.router)
 app.include_router(prediction.router)
 app.include_router(chat.router)
 app.include_router(well_logs.router)
+app.include_router(petroleum_price.router)

@@ -162,10 +162,6 @@ async def generate_node(state: GeoMindState) -> GeoMindState:
 
 
 # output guard
-# Prompt wording improves compliance but cannot guarantee it. Measured on the
-# live Space with an identical prediction: with the rules stated first the model
-# broke them in 1 of 2 runs ("The well contains ...", "no evidence of chalk");
-# moving them next to the question fixed that sample, but a 7B will still slip.
 
 _NEGATION = r"(?:no|not|none|without|absent|absence of|lacks?|free of|didn't|did not|isn't|is not|wasn't|was not)"
 _ABSENCE_RE = [
@@ -229,10 +225,6 @@ def find_unsupported_quantities(answer: str) -> list[str]:
     return sorted({q for q, rx in _QUANTITY_RE if rx.search(answer)})
 
 
-# Confidence is different from the quantities above: the model IS given it when a
-# well has been analysed, so a blocklist would flag legitimate restatements. It is
-# checked by verification instead -- every confidence figure in the answer must
-# match one the classifier actually produced in the summary text.
 _CONFIDENCE_RE = re.compile(
     r"\b(?:confidence|probability|certainty)\b[^.\n]{0,30}?(\d\d?\d?(?:\.\d+)?)\s*(%?)"
     r"|(\d\d?\d?(?:\.\d+)?)\s*(%?)[^.\n]{0,20}?\b(?:confidence|probability|certainty)\b",
@@ -316,6 +308,7 @@ def guard_node(state: GeoMindState) -> GeoMindState:
         notes.append(_NO_PREDICTION_NOTE)
         state.note("guard: confidence claimed with no prediction")
         logger.error("model quoted confidence with no prediction in session")
+        
     elif mismatched:
         notes.append(_MISMATCHED_CONFIDENCE_NOTE.format(values=", ".join(mismatched)))
         state.note(f"guard: mismatched confidence ({', '.join(mismatched)})")

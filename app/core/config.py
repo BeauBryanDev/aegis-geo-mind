@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     # RAG — not wired yet.
     qdrant_url: str | None = None
     qdrant_api_key: str | None = None
+    
+    # EIA API KEY Used to get the EIA data
+    EIA_API_KEY: str | None = None
 
 
 settings = Settings()
